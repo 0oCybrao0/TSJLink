@@ -1,3 +1,4 @@
+bin
 node_modules
 main.js
 tools/CreateJLinkFiles.js
