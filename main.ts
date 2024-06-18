@@ -98,8 +98,9 @@ function runCmd(cmd: string) {
       if (bar.complete) {
         status = 0;
       }
-    } else if (data.indexOf("Error:") != -1) {
+    } else if (data.indexOf("Error:") != -1 && status != -1) {
       // console.log(data);
+      status = -1;
       console.error("Error: " + data.split("Error:")[1].split("\n")[0]);
       err = true;
       child.kill();
@@ -110,8 +111,8 @@ function runCmd(cmd: string) {
   });
 
   child.on("close", function (code: number) {
+    done = true;
     if (!err) {
-      done = true;
       console.log(`Running command "${cmd}" completed.`);
       console.log("Command executed successfully.");
       process.stdout.write("Press enter to continue...");
@@ -134,7 +135,7 @@ async function main() {
     while (!done) {
       await new Promise((resolve) => {
         process.stdin.once("data", () => {
-          if(done){
+          if (done) {
             console.log("Continuing...");
           }
           resolve(0);
