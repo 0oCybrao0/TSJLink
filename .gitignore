@@ -1,3 +1,5 @@
-bin
+bin/*
+jlink/*
+.DS_Store
 node_modules
 *.js
