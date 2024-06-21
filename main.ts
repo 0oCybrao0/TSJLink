@@ -2,6 +2,7 @@ const ProgressBar = require("progress");
 const exec = require("child_process").exec;
 const fs = require("fs");
 const path = require("path");
+import { connected } from "process";
 import { CreateJLinkFiles } from "./tools/CreateJLinkFiles";
 var done: boolean = false;
 var err: boolean = false;
@@ -33,13 +34,14 @@ var colorArray: string[] = [
 var colorString: string = "";
 const TOTAL: number = 6;
 
-function runCmd(cmd: string) {
+async function runCmd(cmd: string) {
   err = false;
   let status = 0;
   console.log(`Running "${cmd}"`);
   var child = exec(cmd);
   child.stdout.setEncoding("utf8");
   child.stdout.on("data", function (data: string) {
+    // console.log(data);
     if (
       data.indexOf("FAILED: Cannot connect to J-Link.") != -1 ||
       data.indexOf("Target voltage too low.") != -1 ||
@@ -98,10 +100,9 @@ function runCmd(cmd: string) {
       if (bar.complete) {
         status = 0;
       }
-    } else if (data.indexOf("Error:") != -1 && status != -1) {
-      // console.log(data);
+    } if (data.indexOf("Error:") != -1 && status != -1) {
       status = -1;
-      console.error("Error: " + data.split("Error:")[1].split("\n")[0]);
+      console.error("Error:" + data.split("Error:")[1].split("\n")[0] + '.');
       err = true;
       child.kill();
       data = "";
@@ -123,7 +124,15 @@ function runCmd(cmd: string) {
 CreateJLinkFiles();
 
 async function main() {
-  for (let i = 1; i <= TOTAL; i++) {
+  let start = Number(process.argv[2]);
+  if (Number.isNaN(start) || start < 1 || start > TOTAL) {
+    console.log(start);
+    start = 1;
+  }
+  for (let i = 0; i < start - 1; i++) {
+    colorString += "[" + colorArray[i] + "]";
+  }
+  for (let i = start; i <= TOTAL; i++) {
     done = false;
     console.log("\x1b[2J");
     if (colorString.length < i * colorArray[0].length) {
@@ -131,7 +140,7 @@ async function main() {
     }
     console.log(i + " of " + TOTAL + " " + colorString);
     const cmd: string = `${jLinkExePath} -CommandFile jlink/CubeProbe_bl_${i}.jlink -ExitOnError 1 -NoGui 1`;
-    runCmd(cmd);
+    await runCmd(cmd);
     while (!done) {
       await new Promise((resolve) => {
         process.stdin.once("data", () => {
