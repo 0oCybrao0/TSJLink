@@ -139,7 +139,7 @@ async function main() {
       colorString += "[" + colorArray[i - 1] + "]";
     }
     console.log(i + " of " + TOTAL + " " + colorString);
-    const cmd: string = `${jLinkExePath} -CommandFile jlink/CubeProbe_bl_${i}.jlink -ExitOnError 1 -NoGui 1`;
+    const cmd: string = `${jLinkExePath} -CommandFile jlink/CubeProbeFirmware_with_bl_${i}.jlink -ExitOnError 1 -NoGui 1`;
     await runCmd(cmd);
     while (!done) {
       await new Promise((resolve) => {

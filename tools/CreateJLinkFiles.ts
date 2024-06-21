@@ -9,12 +9,12 @@ speed 4000
 erase
 jtagconf -1,-1
 connect
-loadfile bin/CubeProbe_bl_${i}.hex
+loadfile bin/CubeProbeFirmware_with_bl_${i}.hex
 r
 g
 sleep 100
 exit`;
-		fs.writeFileSync(`jlink/CubeProbe_bl_${i}.jlink`, commands);
+		fs.writeFileSync(`jlink/CubeProbeFirmware_with_bl_${i}.jlink`, commands);
 	}
 	console.log("JLink files created");
 }
